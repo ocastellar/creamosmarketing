@@ -218,7 +218,53 @@ Content-Type: application/json
 
 este endpoint devuelve un objeto de json con estos parametros en su body:
 
-
 | Parametro | Tipo | Descripción |
 | -- | -- | -- |
-| num_poliza | int | id de la poliza generada por ilio |
+| num_poliza | int | el id del operador comercial dentro de ilio |
+| id_asesor_comercial | int | id del asesor comercial asignado al operador |
+| id_entidad_recaudo | int | entidad recaudadora |
+| numero_contrato | int | numero del contrato valido|
+ 
+ Posibles estados de una polisa
+
+El campo state que recibes en este endpoint describe el estado de la poliza, y puede tener los siguientes valores:
+
+| Estado | Valor del campo state |
+| -- | -- | 
+| EN PROCESO DE AUDITORIA | 33 | 
+| SOLICITUD RECHAZADA | 34 | 
+| SOLICITUD DIGITADA | 35 | 
+| RENOVADA | 3 | 
+| EN PROCESO DE CANCELACION | 105 | 
+ | ERROR DE CREACION | 104 | 
+ 
+ 
+ para solicitar los detalles de una solicitud en javascript y procesar la respuesta:
+ 
+ ``` 
+ 
+let request = await fetch('https://stage.creamosmarketing.co/solicitud_detail/ufa8q176', {
+        method:"POST",
+        headers:{
+            Accept: 'application/json',
+            'Authorization': "Bearer TU_ACCESS_TOKEN",
+            'Content-Type': 'application/json',
+            'x-api-key' : "asdfghjkl1234456"
+        }
+    });
+
+if(request.status == 200){
+    //aqui tenemos información de la solicitud
+    let poliza = await request.json();
+
+    console.log(poliza);
+}
+
+//el resultado en la consola seria:
+
+{
+     url : 6zxczxc383,
+ 
+     
+}
+```
