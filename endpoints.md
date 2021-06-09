@@ -11,9 +11,9 @@ El API contiene toda la funcionalidad que necesitas para crear y consultar una p
 Una vez creada la poliza el asegurado recibira una copia en su correo y el asesor recibe la url con la poliza para descargar en PDF.
 El API de ilio se puede consumir por medio de request HTTPS realizadas a las urls:
 
-Producción: https://ilio.creamosmarketing.com/
+Producción: http://ilio.creamosmarketing.com:9999/
 
-Pruebas: https://stage.creamosmarketing.com/
+Pruebas: http://ilio.creamosmarketing.com:5555/
 
 La documentación está escrita usando la URL de Pruebas, cuando quieras usar el servicio en Producción solo cambiala a la url correspondiente.
 Lo primero que necesitas para usar el api es saber como autenticarte.
@@ -21,38 +21,45 @@ Lo primero que necesitas para usar el api es saber como autenticarte.
 
 ### Autentificación
 
-Para utilizar el API necesitaras 2 cosas, la API key y un token de acceso. La API key es necesaria para acceder a la api de ilio de forma general. Mientras que el token de acceso es necesario para realizar operaciones usando tu cuenta.
+Para utilizar el API necesitaras 2 cosas, el (id) o la API key generado por ilio al momento de crearles un usuario en la plataforma y una clave de acceso que que llamaremos (pd). es necesaria para acceder a la api de ilio de forma general y obtener el token desde el metodo login. el token de acceso es necesario para realizar operaciones usando tu cuenta este tiene un tiempo de duracion de 24 horas.
 
-Estas credenciales se deben incluir en los headers de tus request al api. Authorization y x-api-key.
+Estas credenciales se deben incluir en los headers de tus request al api. Authorization.
 
 por ejemplo, para consultar la poliza usando Javascript harias algo asi:
 
  
 
- ###### Un simple GET con el header de Authorization y su respectivo Token
+ ###### Un simple POST con el header de Authorization
 
 ``` 
-let response = await fetch("https://stage.creamosmarketing.com/polizas", {
-        method: 'GET',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': "Bearer TU_ACCESS_TOKEN",
-            'x-api-key' : "TU_LLAVE_PUBLICA"
-        },
-    });
+var myHeaders = new Headers();
+myHeaders.append("Content-Type", "application/json");
+
+var raw = JSON.stringify({"id":"c2FyYS5oYWFnQGFzcHNvbHMuY29t","idConvenio":null,"pd":"bWFxMjAwNg=="});
+
+var requestOptions = {
+  method: 'POST',
+  headers: myHeaders,
+  body: raw,
+  redirect: 'follow'
+};
+
+fetch("http://ilio.creamosmarketing.com:5555/login/", requestOptions)
+  .then(response => response.text())
+  .then(result => console.log(result))
+  .catch(error => console.log('error', error));
 ```
 
-Ten en cuenta que en el header de Authorization hay un espacio entre la palabra Bearer y el token de acceso.
+
 
 
 #### ¿Como accedo a la API de Ilio?
 
-Una vez tengas un usuario en la plataforma ilio se te generara el x-api-key y el refresh token.
-Una vez tengas tu refresh token, accedes al siguiente endpoint:
+Una vez tengas un usuario en la plataforma ilio se te generara el (id) y el Password (pd).
+Una vez tengas el token, accedes al siguiente endpoint:
 
 ```
-URL: https://stage.creamosmarketing.com/token/refresh/
+URL: http://ilio.creamosmarketing.com:5555/
 METHOD: POST
 Content-Type: application/json
 ```
@@ -60,39 +67,51 @@ El cuerpo de tu request debe ser un objeto de json convertido a texto (text/json
 
 | Parametro | Tipo | Descripción |
 | -- | -- | -- |
-| refresh | String | 	El refresh token |
- 
-
+| id | String |  API key generado por ilio (identid)
+| idConvenio | String | 	null | 
+| pd | String |  Contraseña
 
 La respuesta que deberias obtener tendra estos parametros:
 
 | Parametro | Tipo | Descripción |
 | -- | -- | -- |
-| access | String | Token de acceso con una validez de 24 horas |
- 
+| userId | int | id del usuario |
+| convenioId | String | id del convenio solo si tiene |
+| status | String |	"ok" |
+| errorMessage | String | 	null |
+| token | String | Token de acceso con una validez de 24 horas |
+| username | String | Nombre del usuario |
+  
 Por ejemplo para obtener tu token de acceso usando javascript:
 
 ```
-let response = await fetch("https://stage.creamosmarketing.com/token/refresh/", {
-        method: 'POST',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            'x-api-key' : "asdfghjkl1234456"
-        } ,
-        body: JSON.stringify({
-            refresh: "TU_REFRESH_TOKEN",
-    }),
-});
+var myHeaders = new Headers();
+myHeaders.append("Content-Type", "application/json");
 
-if (response.status == 200){
-    console.log(await response.json());
-}
+var raw = JSON.stringify({"id":"c2FyYS5oYWFnQGFzcHNvbHMuY29t","idConvenio":null,"pd":"bWFxMjAwNg=="});
+
+var requestOptions = {
+  method: 'POST',
+  headers: myHeaders,
+  body: raw,
+  redirect: 'follow'
+};
+
+fetch("D", requestOptions)
+  .then(response => response.text())
+  .then(result => console.log(result))
+  .catch(error => console.log('error', error));
+ 
 
 //la respuesta en consola seria:
 
 {
-    "access": "TU_NUEVO_ACCESS_TOKEN"
+    "userId": 7,
+    "convenioId": null,
+    "status": "ok",
+    "errorMessage": null,
+    "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI3IiwiaXNzIjoiMSIsImV4cCI6MTYyMzM1MzgyOX0.HBMbQlUyKXULNBo_3zdc62oBLglY5h3NsLuShii3pmYeWf-tIWcRDG5i_biqGqFSH2frewZ45kv6ltYiXfyQKw",
+    "username": "Sara Haag"
 }
 ```
 El token recibido va a servirte para realizar peticiones por otras 24 horas, en ese momento deberás renovarlo, usando este mismo endpoint.
