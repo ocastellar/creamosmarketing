@@ -124,7 +124,7 @@ Veamos como puedes crear tu primera solicitud y obtener la poliza.
 El endpoint para crear es:
 
 ``` 
-URL: https://stage.creamosmarketing.com/solicitud/
+URL: http://ilio.creamosmarketing.com:5555/secure/polizas/
 Method: POST
 Content-Type: application/json
 ```
@@ -142,13 +142,26 @@ El cuerpo de tu request debe ser un objeto de json convertido a texto, las propi
 | id_plan | int | id del plan relacionado al producto|
 | asegurados | Array | listado con los datos del tomador ò los tomadores de la poliza con sus beneficiarios|
  
- 
+ Ejemplo de objeto
 
 #####  Posibles respuestas
 | Código HTTP | Causa | 
 | -- | -- |
 | 201 | Solicitud creada | 
-| 400 | Faltan campos o algun campo invalido |  
+| 500 | Faltan campos o algun campo invalido |  
+v
+
+``` 
+{
+   "timestamp":1623435974405,
+   "status":500,
+   "error":"Internal Server Error",
+   "exception":"java.lang.RuntimeException",
+   "message":"El contrato (162) ya supero el numero de productos de SEGURO FUNERARIO permitidos a un contrato; \n",
+   "path":"/secure/polizas/"
+   
+``` 
+
 
 Si todo es correcto recibiras una respuesta con estado 201(creado) y un objeto json con estos parametros:
 
